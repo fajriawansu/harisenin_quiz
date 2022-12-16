@@ -16,6 +16,8 @@ function App() {
   
   const [state, setState] = useState({
     ongoingQuiz: false,
+    lastCategory: undefined,
+    lastLevel: undefined,
     savedAnswer: [],
     savedQuiz: [],
     update,

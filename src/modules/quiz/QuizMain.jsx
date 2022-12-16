@@ -30,7 +30,6 @@ export default function QuizMain({passedInRef, onStart, onEnd, minutes}) {
   });
 
   const fetchData = async () => {
-    // global.update({ ...global, savedQuiz: [], savedAnswer: []})
     const resp = await Apiservice.GetCategories();
     if(resp.status <= 201) {
       let tempData = [];
@@ -52,7 +51,16 @@ export default function QuizMain({passedInRef, onStart, onEnd, minutes}) {
       let tempAnswer = [];
       setDataQuiz(resp.data);
       resp.data?.forEach(v => tempAnswer.push(""))
-      global.update({ ...global, savedQuiz: resp.data, savedAnswer: tempAnswer, ongoingQuiz: true})
+      
+      global.update({
+        ...global,
+        savedQuiz: resp.data,
+        savedAnswer: tempAnswer,
+        ongoingQuiz: true,
+        lastCategory: formValue.category,
+        lastLevel: formValue.level,
+      });
+      
       setMyAnswer(tempAnswer);
       if(onStart)onStart();
     }
@@ -84,12 +92,29 @@ export default function QuizMain({passedInRef, onStart, onEnd, minutes}) {
         total: finalPoint + finalBonus
       })
 
+      // save to local storage
+
       const currentScore = localStorage.getItem('quiz_score');
       const currentTrue = localStorage.getItem('total_true');
       const currentFalse = localStorage.getItem('total_false');
+      const currentHistory = JSON.parse(localStorage.getItem('quiz_history'));
+
+      const addedHistory = {
+        finish_date: new Date().getTime(),
+        level: global.lastLevel,
+        category: global.lastCategory,
+        point: finalPoint,
+        bonus: finalBonus,
+        total: finalPoint + finalBonus
+      }
+
+      let updatedHistory = [];
+      currentHistory?.length > 0 && Array.isArray(currentHistory) ? updatedHistory = [addedHistory, ...currentHistory] : updatedHistory = [addedHistory]
+
       localStorage.setItem('quiz_score', Number(currentScore) + Number(finalPoint) + Number(finalBonus));
       localStorage.setItem('total_true', Number(currentTrue) + Number(tempPoint));
       localStorage.setItem('total_false', Number(currentFalse) + Number(20) - Number(tempPoint));
+      localStorage.setItem('quiz_history', JSON.stringify(updatedHistory))
     }
     
     setAnswerable(false);

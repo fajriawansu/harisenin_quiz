@@ -1,7 +1,9 @@
 import React from 'react';
 
 const GlobalContext = React.createContext({
-  minutes: 300,
+  ongoingQuiz: false,
+  lastCategory: undefined,
+  lastLevel: undefined,
   savedAnswer: [],
   savedQuiz: [],
   update: (data) => { },
