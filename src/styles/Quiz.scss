@@ -1,0 +1,113 @@
+.quiz-title {
+    font-size: 32px;
+    font-weight: bold;
+    padding: 12px 0px;
+}
+
+.quiz-form {
+    display: flex;
+    position: relative;
+    padding: 16px;
+    border: 1px solid black;
+    border-radius: 12px;
+    gap: 12px;
+    align-items: flex-end;
+    margin-bottom: 32px;
+    &_label {
+        margin-bottom: 8px;
+    }
+}
+
+.quiz-options {
+    padding: 8px;
+    border-radius: 8px;
+    width: 200px;
+    cursor: pointer;
+}
+
+.quiz-start-btn {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    padding: 8px 16px;
+    height: 50%;
+    background-color: bisque;
+    border-radius: 8px;
+    border-color: bisque;
+    box-shadow: none ;
+    cursor: pointer;
+}
+
+.quiz-questions {
+    margin-top: 24px;
+}
+
+.quiz-each-question {
+    &_true {
+        color: green;
+    }
+    &_false {
+        color: red;
+    }
+}
+
+.quiz-item {
+    margin-bottom: 24px;
+    &_options-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+    }
+    &_option {
+        flex-basis: 45%;
+        border: 1px solid black;
+        padding: 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        &:hover{
+            background-color: gainsboro;
+            color: black;
+        }
+    }
+    &_green {
+        background-color: green;
+        color: white;
+    }
+    &_red {
+        background-color: red;
+        color: white;
+    }
+}
+
+.quiz-index {
+    border: 1px solid gray;
+    border-radius: 25%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    &:hover {
+        background-color: gainsboro;
+        color: black
+    }
+    &_filled {
+        @extend .quiz-index;
+        background-color: bisque;
+    }
+}
+
+.quiz-submit-btn {
+    margin-top: 24px;
+    padding: 12px 16px;
+    background-color: bisque;
+    border-radius: 8px;
+    border-color: bisque;
+    cursor: pointer;
+}
+
+.quiz-score {
+    font-size: 24px;
+}
