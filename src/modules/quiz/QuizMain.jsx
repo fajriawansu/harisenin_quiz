@@ -1,13 +1,12 @@
-import React, { useContext, useEffect, useImperativeHandle, useRef, useState } from 'react'
+import React, { useContext, useEffect, useImperativeHandle, useState } from 'react'
 import Layout from '../../components/Layout'
 import Apiservice from '../../services/Apiservice';
 import GlobalContext from '../../utils/global-context';
 import QuizView from './QuizView';
 
-export default function QuizMain({passedInRef}) {
+export default function QuizMain({passedInRef, onStart, onEnd, minutes}) {
 
   const global = useContext(GlobalContext);
-  const counterRef = useRef();
 
   useImperativeHandle(passedInRef, () => ({
     forceSubmit: () => {
@@ -31,6 +30,7 @@ export default function QuizMain({passedInRef}) {
   });
 
   const fetchData = async () => {
+    // global.update({ ...global, savedQuiz: [], savedAnswer: []})
     const resp = await Apiservice.GetCategories();
     if(resp.status <= 201) {
       let tempData = [];
@@ -41,7 +41,6 @@ export default function QuizMain({passedInRef}) {
         })
       }
       setCategories(tempData);
-      global.update({ ...global, savedQuiz: [], savedAnswer: []})
     }
   }
 
@@ -52,10 +51,10 @@ export default function QuizMain({passedInRef}) {
       setAnswerable(true);
       let tempAnswer = [];
       setDataQuiz(resp.data);
-      global.update({ ...global, savedQuiz: resp.data})
       resp.data?.forEach(v => tempAnswer.push(""))
+      global.update({ ...global, savedQuiz: resp.data, savedAnswer: tempAnswer, ongoingQuiz: true})
       setMyAnswer(tempAnswer);
-      counterRef.current?.startTimer()
+      if(onStart)onStart();
     }
   }
 
@@ -63,34 +62,37 @@ export default function QuizMain({passedInRef}) {
     let tempAnswer = [...myAnswer];
     tempAnswer[idx] = val;
     setMyAnswer(tempAnswer);
-    console.log({tempAnswer, saved: global.savedAnswer})
     global.update({ ...global, savedAnswer: tempAnswer})
   }
 
   const handleSubmit = () => {
-    setAnswerable(false);
-    counterRef.current?.endTimer();
+    if(answerable){
+      global.update({ongoingQuiz: false});
+      if(onEnd)onEnd()
     
-    let tempPoint = 0;
-    myAnswer.forEach((v, k) => {
-      if(v === dataQuiz[k]?.correctAnswer) tempPoint ++;
-    })
+      let tempPoint = 0;
+      myAnswer.forEach((v, k) => {
+        if(v === dataQuiz[k]?.correctAnswer) tempPoint ++;
+      })
 
-    const finalPoint = tempPoint * 1000;
-    const finalBonus = counterRef.current?.getRemainingTimer() * tempPoint / 10;
+      const finalPoint = tempPoint * 1000;
+      const finalBonus = minutes * tempPoint / 10;
 
-    setScore({
-      point: finalPoint,
-      bonus: finalBonus,
-      total: finalPoint + finalBonus
-    })
+      setScore({
+        point: finalPoint,
+        bonus: finalBonus,
+        total: finalPoint + finalBonus
+      })
 
-    const currentScore = localStorage.getItem('quiz_score');
-    const currentTrue = localStorage.getItem('total_true');
-    const currentFalse = localStorage.getItem('total_false');
-    localStorage.setItem('quiz_score', Number(currentScore) + Number(finalPoint) + Number(finalBonus));
-    localStorage.setItem('total_true', Number(currentTrue) + Number(tempPoint));
-    localStorage.setItem('total_false', Number(currentFalse) + Number(20) - Number(tempPoint));
+      const currentScore = localStorage.getItem('quiz_score');
+      const currentTrue = localStorage.getItem('total_true');
+      const currentFalse = localStorage.getItem('total_false');
+      localStorage.setItem('quiz_score', Number(currentScore) + Number(finalPoint) + Number(finalBonus));
+      localStorage.setItem('total_true', Number(currentTrue) + Number(tempPoint));
+      localStorage.setItem('total_false', Number(currentFalse) + Number(20) - Number(tempPoint));
+    }
+    
+    setAnswerable(false);
 
   }
 
@@ -98,6 +100,8 @@ export default function QuizMain({passedInRef}) {
     fetchData();
     setMyAnswer(global?.savedAnswer);
     setDataQuiz(global?.savedQuiz);
+    if(global.savedQuiz?.length === 0 && onEnd) onEnd();
+    setAnswerable(global.ongoingQuiz)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -153,8 +157,8 @@ export default function QuizMain({passedInRef}) {
       </Layout.Left>
       <Layout.Right>
         <div style={{position: "sticky", top: 40}}>
-          <QuizView.Timer passedInRef={counterRef} onEnd={handleSubmit} />
-          { myAnswer?.length > 0 && <QuizView.Indexes data={myAnswer} isEnd={!answerable} />}
+          <QuizView.Timer minutes={minutes} />
+          { myAnswer?.length > 0 && <QuizView.Indexes data={myAnswer} />}
           <button className='quiz-submit-btn' type='button' onClick={handleSubmit}>Submit</button>
           <QuizView.Score show={!answerable} point={score.point} bonus={score.bonus} total={score.total} />
         </div>

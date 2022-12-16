@@ -1,4 +1,4 @@
-import { useContext, useEffect, useImperativeHandle, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import GlobalContext from "../../utils/global-context";
 
 function Question({q, number, category, correctAnswer = "", incorrectAnswers = [], onSelected, isEnd, selectedValue}){
@@ -58,48 +58,8 @@ function Question({q, number, category, correctAnswer = "", incorrectAnswers = [
     </div>
 }
 
-function Timer({passedInRef, onEnd}) {
-
-    const [start, setStart] = useState(false);
-    const [minutes, setMinutes] = useState(300);
+function Timer({minutes}) {
     const global = useContext(GlobalContext);
-
-    useImperativeHandle(passedInRef, () => ({
-        startTimer: () => {
-            setStart(true);
-            setMinutes(300)
-        },
-
-        endTimer: () => {
-            setStart(false);
-        },
-
-        getRemainingTimer: () => {
-            return minutes;
-        },
-    }));
-
-    useEffect(() => {
-    if (!minutes) return onEnd ? onEnd() : null;
-    if(start){
-        const interval = setInterval(() => {
-            setMinutes(minutes - 1);
-            global.update({
-                ...global,
-                minutes: minutes - 1
-            })
-        }, 1000);
-        return () => {
-            clearInterval(interval);
-        };
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [minutes, start, global]);
-
-    useEffect(() => {
-        console.log({global})
-        setMinutes(global?.minutes);
-    }, [])
 
     return <div>
         <div style={{fontWeight: 'bold', fontSize: 24}}>Remaining Time: </div>
@@ -110,7 +70,7 @@ function Timer({passedInRef, onEnd}) {
     </div>
 }
 
-function Indexes({data = [], isEnd}){
+function Indexes({data = []}){
     const handleClickScroll = (idx) => {
         const element = document.getElementById(`quiz-number-${idx}`);
         if (element) {

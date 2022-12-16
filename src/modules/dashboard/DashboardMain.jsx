@@ -20,7 +20,7 @@ export default function DashboardMain() {
     {name: "Nurdin", score: 1515.71},
     {name: "Eko", score: 1411515.71},
     {name: "Kusnaedi", score: 1212.71},
-    {name: "Bapak Kusnandar", score: 200000.71},
+    {name: "Bapak Kusnandar", score: 9999999998.71},
     {name: "Ibu Siti", score: 124151.71},
     {name: "Pak RT", score: 12646.71},
     {name: "Kang Cilok", score: 85858.71},
@@ -39,8 +39,8 @@ export default function DashboardMain() {
   }
 
   useEffect(() => {
-    if(dummyBoard.some(el => el.name !== "Ini Kamu")){
-      setDummyBoard([...dummyBoard, {name: "Ini Kamu", score: Number(currentScore)}])
+    if(!dummyBoard.some(el => el.name === "Ini Kamu")){
+      setDummyBoard([...dummyBoard, {name: "Ini Kamu", score: Number(currentScore)}].sort((a,b) => b.score - a.score))
     }
   }, [])
 
@@ -55,7 +55,7 @@ export default function DashboardMain() {
           <div className='home-info'>
             <div className='home-card'>
               <div>Your Score</div>
-              <div className='home-card_body'>{Number(currentScore) ?? 0}</div>
+              <div className='home-card_body'>{parseFloat(Number(currentScore)).toFixed(2) ?? 0}</div>
             </div>
             <div className='home-card'>
               <div>Total Answered</div>
@@ -69,12 +69,16 @@ export default function DashboardMain() {
                 </> : <>0%</>
               }</div>
             </div>
+            <div className='home-card'>
+              <div>Your Ranking</div>
+              <div className='home-card_body'>{dummyBoard.findIndex(el => el.name === "Ini Kamu") + 1}</div>
+            </div>
           </div>
           <button className='home-reset-btn' onClick={handleResetData}>Reset My Data</button>
           <div className='home-leaderboard'>
               <div style={{marginBottom: 24, fontSize: 24}}>Leaderboard</div>
               <div className='home-leaderboard_scrolarea'>
-                {dummyBoard.sort((a,b) => b.score - a.score).map((v,k) => {
+                {dummyBoard.map((v,k) => {
                   return (<div key={k} className="home-leaderboard_data">
                     <div style={{fontWeight: v.name === "Ini Kamu" ? "bold" : ""}}>{k+1}. {v.name}</div>
                     <div>{v.score}</div>
